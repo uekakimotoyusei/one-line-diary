@@ -8,6 +8,11 @@ use RuntimeException;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * テストアプリを起動し、開発DBへの誤接続を防ぐ。
+     *
+     * @throws RuntimeException テスト環境またはSQLiteメモリDB以外を参照する場合。
+     */
     public function createApplication(): Application
     {
         $app = parent::createApplication();

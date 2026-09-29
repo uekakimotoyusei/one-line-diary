@@ -7,12 +7,19 @@ use Illuminate\Validation\Rule;
 
 class DiaryRequest extends FormRequest
 {
+    /**
+     * 認証を設けないローカル評価用の操作を許可する。
+     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /** @return array<string, array<mixed>> */
+    /**
+     * タイトル・本文・画像と画像削除指定の検証ルールを返す。
+     *
+     * @return array<string, array<mixed>>
+     */
     public function rules(): array
     {
         return [
@@ -23,7 +30,11 @@ class DiaryRequest extends FormRequest
         ];
     }
 
-    /** @return array<string, string> */
+    /**
+     * 入力エラーに対応する日本語メッセージを返す。
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
@@ -44,7 +55,11 @@ class DiaryRequest extends FormRequest
         ];
     }
 
-    /** @return array<string, string> */
+    /**
+     * エラーメッセージ内の項目名を日本語にする。
+     *
+     * @return array<string, string>
+     */
     public function attributes(): array
     {
         return ['title' => 'タイトル', 'body' => '本文'];
