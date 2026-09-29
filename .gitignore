@@ -6,6 +6,9 @@
 .phpactor.json
 .phpunit.result.cache
 /.codex
+/.claude/
+/.mcp.json
+/boost.json
 /.cursor/
 /.idea
 /.nova
