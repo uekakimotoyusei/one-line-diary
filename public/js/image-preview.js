@@ -1,19 +1,22 @@
 document.querySelectorAll('[data-image-field]').forEach((field) => {
     const input = field.querySelector('input[type="file"]');
-    const currentImage = field.querySelector('[data-current-image]');
-    const preview = field.querySelector('[data-image-preview]');
     const previewImage = field.querySelector('[data-preview-image]');
+    const placeholder = field.querySelector('[data-image-placeholder]');
     const status = field.querySelector('[data-preview-status]');
+    const originalSrc = previewImage.getAttribute('src');
     let objectUrl = null;
 
     /** 保存済みの画像に戻し、前のプレビュー用URLを解放する。 */
     function resetPreview() {
-        preview.hidden = true;
-        previewImage.removeAttribute('src');
-        if (currentImage) {
-            currentImage.hidden = false;
+        if (originalSrc) {
+            previewImage.src = originalSrc;
+        } else {
+            previewImage.removeAttribute('src');
         }
-        status.textContent = '';
+        previewImage.hidden = !originalSrc;
+        previewImage.alt = '現在の画像';
+        placeholder.hidden = Boolean(originalSrc);
+        status.textContent = originalSrc ? '現在の画像' : '画像未選択';
         if (objectUrl) {
             URL.revokeObjectURL(objectUrl);
             objectUrl = null;
@@ -36,11 +39,10 @@ document.querySelectorAll('[data-image-field]').forEach((field) => {
                 return;
             }
             previewImage.src = selectedUrl;
-            preview.hidden = false;
-            if (currentImage) {
-                currentImage.hidden = true;
-            }
-            status.textContent = 'プレビューを表示しています。保存するには投稿または更新してください。';
+            previewImage.hidden = false;
+            previewImage.alt = '選択中の画像のプレビュー';
+            placeholder.hidden = true;
+            status.textContent = '選択中の画像（未保存）';
         };
         image.onerror = () => {
             if (objectUrl !== selectedUrl) {
