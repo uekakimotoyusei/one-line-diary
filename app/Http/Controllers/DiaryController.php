@@ -14,8 +14,13 @@ use Throwable;
 
 class DiaryController extends Controller
 {
+    // 1ページあたりの表示件数
+    const int PER_PAGE = 5;
+
     /**
-     * 日記を5件ずつ表示し、存在しないページ指定は先頭へ戻す。
+     * 一覧画面を表示する。
+     * PER_PAGEごとにページネーションを行い、最新の日記から順に表示する。
+     * 存在しないページ指定は先頭へ戻す。
      *
      * @param  Request  $request  ページ番号を含む一覧リクエスト。
      * @return View|RedirectResponse 一覧画面、または1ページ目へのリダイレクト。
@@ -37,7 +42,7 @@ class DiaryController extends Controller
         }
 
         // 巨大なページ番号がSQLのOFFSETに渡らないよう、取得前に範囲を確認する。
-        $perPage = 5;
+        $perPage = self::PER_PAGE;
         $total = Diary::query()->count();
         $lastPage = max(1, (int) ceil($total / $perPage));
         if ($page > $lastPage) {
@@ -68,6 +73,8 @@ class DiaryController extends Controller
      *
      * @param  DiaryRequest  $request  検証済みの投稿内容。
      * @return RedirectResponse 投稿完了メッセージ付きの一覧へのリダイレクト。
+     *
+     * @throws Throwable
      */
     public function store(DiaryRequest $request): RedirectResponse
     {
@@ -93,6 +100,8 @@ class DiaryController extends Controller
      * @param  DiaryRequest  $request  検証済みの更新内容。
      * @param  Diary  $diary  更新対象の日記。
      * @return RedirectResponse 更新完了メッセージ付きの一覧へのリダイレクト。
+     *
+     * @throws Throwable
      */
     public function update(DiaryRequest $request, Diary $diary): RedirectResponse
     {
@@ -106,6 +115,8 @@ class DiaryController extends Controller
      *
      * @param  Diary  $diary  削除対象の日記。
      * @return RedirectResponse 削除完了メッセージ付きの一覧へのリダイレクト。
+     *
+     * @throws Throwable
      */
     public function destroy(Diary $diary): RedirectResponse
     {
