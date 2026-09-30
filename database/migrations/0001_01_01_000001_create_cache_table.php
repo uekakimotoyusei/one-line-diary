@@ -7,25 +7,45 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * 必要なテーブルを作成する。
+     *
+     * @return void テーブル作成のみを行い、値は返さない。
      */
     public function up(): void
     {
-        Schema::create('cache', function (Blueprint $table) {
+        /**
+         * cacheテーブルの構造を定義する。
+         *
+         * @param  Blueprint  $table  作成対象のテーブル定義。
+         * @return void カラムと索引を定義し、値は返さない。
+         */
+        $defineTable = function (Blueprint $table): void {
             $table->string('key')->primary();
             $table->mediumText('value');
             $table->bigInteger('expiration')->index();
-        });
+        };
 
-        Schema::create('cache_locks', function (Blueprint $table) {
+        Schema::create('cache', $defineTable);
+
+        /**
+         * cache_locksテーブルの構造を定義する。
+         *
+         * @param  Blueprint  $table  作成対象のテーブル定義。
+         * @return void カラムと索引を定義し、値は返さない。
+         */
+        $defineTable = function (Blueprint $table): void {
             $table->string('key')->primary();
             $table->string('owner');
             $table->bigInteger('expiration')->index();
-        });
+        };
+
+        Schema::create('cache_locks', $defineTable);
     }
 
     /**
-     * Reverse the migrations.
+     * 作成したテーブルを削除する。
+     *
+     * @return void テーブル削除のみを行い、値は返さない。
      */
     public function down(): void
     {

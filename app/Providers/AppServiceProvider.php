@@ -7,7 +7,9 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * アプリケーションのサービスを登録する。
+     *
+     * @return void サービス登録のみを行い、値は返さない。
      */
     public function register(): void
     {
@@ -15,7 +17,9 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * アプリケーションのサービスを初期化する。
+     *
+     * @return void 初期化のみを行い、値は返さない。
      */
     public function boot(): void
     {

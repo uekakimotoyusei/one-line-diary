@@ -7,11 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * 必要なテーブルを作成する。
+     *
+     * @return void テーブル作成のみを行い、値は返さない。
      */
     public function up(): void
     {
-        Schema::create('jobs', function (Blueprint $table) {
+        /**
+         * jobsテーブルの構造を定義する。
+         *
+         * @param  Blueprint  $table  作成対象のテーブル定義。
+         * @return void カラムと索引を定義し、値は返さない。
+         */
+        $defineTable = function (Blueprint $table): void {
             $table->id();
             $table->string('queue')->index();
             $table->longText('payload');
@@ -19,9 +27,17 @@ return new class extends Migration
             $table->unsignedInteger('reserved_at')->nullable();
             $table->unsignedInteger('available_at');
             $table->unsignedInteger('created_at');
-        });
+        };
 
-        Schema::create('job_batches', function (Blueprint $table) {
+        Schema::create('jobs', $defineTable);
+
+        /**
+         * job_batchesテーブルの構造を定義する。
+         *
+         * @param  Blueprint  $table  作成対象のテーブル定義。
+         * @return void カラムと索引を定義し、値は返さない。
+         */
+        $defineTable = function (Blueprint $table): void {
             $table->string('id')->primary();
             $table->string('name');
             $table->integer('total_jobs');
@@ -32,9 +48,17 @@ return new class extends Migration
             $table->integer('cancelled_at')->nullable();
             $table->integer('created_at');
             $table->integer('finished_at')->nullable();
-        });
+        };
 
-        Schema::create('failed_jobs', function (Blueprint $table) {
+        Schema::create('job_batches', $defineTable);
+
+        /**
+         * failed_jobsテーブルの構造を定義する。
+         *
+         * @param  Blueprint  $table  作成対象のテーブル定義。
+         * @return void カラムと索引を定義し、値は返さない。
+         */
+        $defineTable = function (Blueprint $table): void {
             $table->id();
             $table->string('uuid')->unique();
             $table->string('connection');
@@ -44,11 +68,15 @@ return new class extends Migration
             $table->timestamp('failed_at')->useCurrent();
 
             $table->index(['connection', 'queue', 'failed_at']);
-        });
+        };
+
+        Schema::create('failed_jobs', $defineTable);
     }
 
     /**
-     * Reverse the migrations.
+     * 作成したテーブルを削除する。
+     *
+     * @return void テーブル削除のみを行い、値は返さない。
      */
     public function down(): void
     {

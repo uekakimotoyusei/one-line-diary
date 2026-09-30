@@ -9,9 +9,11 @@ class ExampleTest extends TestCase
 {
     /**
      * トップページから日記一覧へリダイレクトすることを確認する。
+     *
+     * @return void 戻り値なし。
      */
     #[TestDox('トップページから日記一覧へリダイレクトする')]
-    public function test_the_application_returns_a_successful_response(): void
+    public function testTheApplicationReturnsASuccessfulResponse(): void
     {
         $response = $this->get('/');
 
