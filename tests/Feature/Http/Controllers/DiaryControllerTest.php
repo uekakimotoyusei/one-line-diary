@@ -158,10 +158,10 @@ class DiaryControllerTest extends TestCase
     }
 
     /**
-     * 日記を残して画像だけを削除することを確認する。
+     * 廃止した画像削除指定が送信されても現在の画像を保持することを確認する。
      */
-    #[TestDox('日記を残して画像だけを削除する')]
-    public function test_removes_image_without_deleting_diary(): void
+    #[TestDox('廃止した画像削除指定が送信されても現在の画像を保持する')]
+    public function test_ignores_removed_image_deletion_option(): void
     {
         Storage::fake('public');
         Storage::disk('public')->put('diaries/old.jpg', 'old');
@@ -169,23 +169,24 @@ class DiaryControllerTest extends TestCase
 
         $this->put(route('diaries.update', $diary), ['title' => '変更', 'body' => '本文', 'remove_image' => '1'])->assertRedirect('/diaries');
 
-        $this->assertNull($diary->fresh()->image_path);
-        Storage::disk('public')->assertMissing('diaries/old.jpg');
+        $this->assertSame('diaries/old.jpg', $diary->fresh()->image_path);
+        Storage::disk('public')->assertExists('diaries/old.jpg');
+        $this->get(route('diaries.edit', $diary))->assertDontSee('現在の画像を削除する')->assertDontSee('name="remove_image"', false);
     }
 
     /**
-     * 画像の差し替えと削除の同時指定を拒否し入力値を保持することを確認する。
+     * 画像の形式エラー時に入力値と現在の画像を保持することを確認する。
      */
-    #[TestDox('画像の差し替えと削除の同時指定を拒否し入力値を保持する')]
-    public function test_rejects_simultaneous_image_replacement_and_removal_and_preserves_inputs(): void
+    #[TestDox('画像の形式エラー時に入力値と現在の画像を保持する')]
+    public function test_rejects_invalid_replacement_and_preserves_inputs_and_current_image(): void
     {
         Storage::fake('public');
         Storage::disk('public')->put('diaries/old.jpg', 'old');
         $diary = Diary::factory()->create(['image_path' => 'diaries/old.jpg']);
 
         $this->from(route('diaries.edit', $diary))->put(route('diaries.update', $diary), [
-            'title' => '保持する題', 'body' => '保持する本文', 'image' => $this->jpeg(), 'remove_image' => '1',
-        ])->assertSessionHasErrors(['image' => '画像の差し替えと削除は同時に指定できません。']);
+            'title' => '保持する題', 'body' => '保持する本文', 'image' => $this->jpeg('invalid.png'),
+        ])->assertSessionHasErrors(['image' => '画像の拡張子はjpgまたはjpegにしてください。']);
 
         $this->get(route('diaries.edit', $diary))->assertSee('保持する題')->assertSee('保持する本文')->assertSee('現在の画像');
         $this->assertSame('diaries/old.jpg', $diary->fresh()->image_path);

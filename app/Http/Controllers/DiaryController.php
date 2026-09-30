@@ -95,7 +95,7 @@ class DiaryController extends Controller
                 }
                 $oldPath = $diary->image_path;
                 $diary->fill($request->safe()->only(['title', 'body']));
-                if ($newPath !== null || $request->boolean('remove_image')) {
+                if ($newPath !== null) {
                     $diary->image_path = $newPath;
                 }
                 $diary->save();

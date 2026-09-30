@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class DiaryRequest extends FormRequest
 {
@@ -16,7 +15,7 @@ class DiaryRequest extends FormRequest
     }
 
     /**
-     * タイトル・本文・画像と画像削除指定の検証ルールを返す。
+     * タイトル・本文・画像の検証ルールを返す。
      *
      * @return array<string, array<mixed>>
      */
@@ -25,8 +24,7 @@ class DiaryRequest extends FormRequest
         return [
             'title' => ['bail', 'required', 'string', 'max:50', 'not_regex:/\R/u', 'regex:/[^\s\p{Z}]/u'],
             'body' => ['bail', 'required', 'string', 'max:140', 'not_regex:/\R/u', 'regex:/[^\s\p{Z}]/u'],
-            'image' => ['bail', 'nullable', Rule::prohibitedIf($this->boolean('remove_image')), 'file', 'image', 'mimes:jpg,jpeg', 'extensions:jpg,jpeg', 'max:5120'],
-            'remove_image' => ['sometimes', 'boolean'],
+            'image' => ['bail', 'nullable', 'file', 'image', 'mimes:jpg,jpeg', 'extensions:jpg,jpeg', 'max:5120'],
         ];
     }
 
@@ -44,14 +42,12 @@ class DiaryRequest extends FormRequest
             'body.max' => '本文は140文字以内で入力してください。',
             'not_regex' => ':attributeに改行は使用できません。',
             'regex' => ':attributeは空白以外の文字を入力してください。',
-            'image.prohibited' => '画像の差し替えと削除は同時に指定できません。',
             'image.file' => '画像ファイルを選択してください。',
             'image.image' => 'JPEG形式の画像を選択してください。',
             'image.mimes' => 'JPEG形式の画像を選択してください。',
             'image.extensions' => '画像の拡張子はjpgまたはjpegにしてください。',
             'image.max' => '画像は5MB以下にしてください。',
             'image.uploaded' => '画像をアップロードできませんでした。5MB以下の画像を選び直してください。',
-            'remove_image.boolean' => '画像の削除指定が正しくありません。',
         ];
     }
 
