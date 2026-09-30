@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DiaryRequest;
 use App\Models\Diary;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -14,11 +15,24 @@ use Throwable;
 class DiaryController extends Controller
 {
     /**
-     * 日記を投稿日時とIDの降順で5件ずつ表示する。
+     * 日記を5件ずつ表示し、存在しないページ指定は先頭へ戻す。
      */
-    public function index(): View
+    public function index(Request $request): View|RedirectResponse
     {
-        return view('diaries.index', ['diaries' => Diary::query()->latest()->orderByDesc('id')->paginate(5)]);
+        $query = $request->query();
+        $page = filter_var(array_key_exists('page', $query) ? $query['page'] : 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($page === false) {
+            return to_route('diaries.index');
+        }
+
+        $total = Diary::query()->count();
+        if ($page > max(1, (int) ceil($total / 5))) {
+            return to_route('diaries.index');
+        }
+
+        return view('diaries.index', [
+            'diaries' => Diary::query()->latest()->orderByDesc('id')->paginate(5, page: $page, total: $total),
+        ]);
     }
 
     /**

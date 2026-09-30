@@ -16,6 +16,58 @@ class DiaryControllerTest extends TestCase
     use LazilyRefreshDatabase;
 
     /**
+     * 最終ページより大きい番号では先頭へリダイレクトすることを確認する。
+     */
+    #[TestDox('存在しないページを指定すると1ページ目へリダイレクトする')]
+    public function test_redirects_out_of_range_page_to_first_page(): void
+    {
+        Diary::factory()->count(6)->create();
+
+        $this->get('/diaries?page=14')->assertRedirect(route('diaries.index'));
+        $this->get('/diaries?page='.PHP_INT_MAX)->assertRedirect(route('diaries.index'));
+        $this->get('/diaries?page=2')->assertOk()->assertSee('2 / 2 ページ');
+    }
+
+    /**
+     * 投稿がない場合も先頭以外のページを表示しないことを確認する。
+     */
+    #[TestDox('日記が0件の場合は1ページ目だけ表示する')]
+    public function test_redirects_non_first_page_when_no_diaries_exist(): void
+    {
+        $this->get('/diaries?page=2')->assertRedirect(route('diaries.index'));
+        $this->get('/diaries')->assertOk()->assertSee('日記はまだありません。');
+        $this->get('/diaries?page=1')->assertOk();
+    }
+
+    /**
+     * 正の整数として扱えないページ指定を先頭へ戻すことを確認する。
+     */
+    #[DataProvider('invalidPages')]
+    #[TestDox('不正なページ番号を指定すると1ページ目へリダイレクトする')]
+    public function test_redirects_invalid_page_to_first_page(string $query): void
+    {
+        $this->get('/diaries?'.$query)->assertRedirect(route('diaries.index'));
+    }
+
+    /**
+     * ページ番号として受け付けないクエリを提供する。
+     *
+     * @return array<string, array{string}>
+     */
+    public static function invalidPages(): array
+    {
+        return [
+            'ゼロ' => ['page=0'],
+            '負数' => ['page=-1'],
+            '文字列' => ['page=abc'],
+            '小数' => ['page=1.5'],
+            '空文字' => ['page='],
+            '配列' => ['page[]=2'],
+            '整数上限超過' => ['page=99999999999999999999999999999'],
+        ];
+    }
+
+    /**
      * 新しい日記から5件ずつ安定した順序と日本時間で表示することを確認する。
      */
     #[TestDox('新しい日記から5件ずつ安定した順序と日本時間で表示する')]
