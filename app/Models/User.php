@@ -18,9 +18,9 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * Get the attributes that should be cast.
+     * モデル属性の型変換を定義する。
      *
-     * @return array<string, string>
+     * @return array<string, string> 属性名と変換方法の対応。
      */
     protected function casts(): array
     {

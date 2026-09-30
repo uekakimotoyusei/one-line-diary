@@ -8,6 +8,8 @@ class DiaryRequest extends FormRequest
 {
     /**
      * 認証を設けないローカル評価用の操作を許可する。
+     *
+     * @return bool 認証不要のため常にtrue。
      */
     public function authorize(): bool
     {
@@ -17,10 +19,11 @@ class DiaryRequest extends FormRequest
     /**
      * タイトル・本文・画像の検証ルールを返す。
      *
-     * @return array<string, array<mixed>>
+     * @return array<string, array<mixed>> 項目ごとの検証ルール。
      */
     public function rules(): array
     {
+        // 一行日記として改行と空白だけの投稿を拒否し、画像は内容と拡張子を確認する。
         return [
             'title' => ['bail', 'required', 'string', 'max:50', 'not_regex:/\R/u', 'regex:/[^\s\p{Z}]/u'],
             'body' => ['bail', 'required', 'string', 'max:140', 'not_regex:/\R/u', 'regex:/[^\s\p{Z}]/u'],
@@ -31,7 +34,7 @@ class DiaryRequest extends FormRequest
     /**
      * 入力エラーに対応する日本語メッセージを返す。
      *
-     * @return array<string, string>
+     * @return array<string, string> 項目と日本語表記の対応。
      */
     public function messages(): array
     {
@@ -54,10 +57,13 @@ class DiaryRequest extends FormRequest
     /**
      * エラーメッセージ内の項目名を日本語にする。
      *
-     * @return array<string, string>
+     * @return array<string, string> 項目と日本語表記の対応。
      */
     public function attributes(): array
     {
-        return ['title' => 'タイトル', 'body' => '本文'];
+        return [
+            'title' => 'タイトル',
+            'body' => '本文',
+        ];
     }
 }
