@@ -12,7 +12,7 @@ Laravel 13による1行日記サイトです。日記の一覧・投稿・編集
 - 投稿・編集で画像を選択すると、保存前にブラウザ内でプレビューを表示します。選択だけではアップロードされず、投稿・更新ボタンで保存されます。
 - 日記の削除には確認ダイアログを表示します。投稿・更新・削除後は一覧の先頭に戻ります。
 - 入力エラー時はタイトルと本文を保持します。画像は選び直してください。
-- 認証は設けていません。ローカル評価用で、アクセスした人がすべての日記を操作できます。
+- 認証は設けていません。アクセスした人がすべての日記を操作できます。
 
 画像本体は公開ストレージに保存し、DBには生成した保存先パスを記録します。
 画像差し替え時はDB更新成功後に旧画像を削除し、DB保存失敗時は新しい画像を削除します。
@@ -37,7 +37,7 @@ Docker Desktop（またはDocker EngineとComposeプラグイン）とGitを用�
 git clone https://github.com/uekakimotoyusei/one-line-diary.git
 cd one-line-diary
 cp .env.example .env
-docker compose up -d --build --wait
+docker compose up -d --build
 docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
@@ -47,16 +47,16 @@ docker compose exec app php artisan storage:link
 [http://localhost:8080](http://localhost:8080)へアクセスします。初回のイメージ作成には数分かかる場合があります。
 画面のCSS・JavaScriptは`public/`に配置しているため、Viteのビルドは不要です。
 
-`.env`をLaravelとComposeで共用します。DB接続先はコンテナ間通信用の`DB_HOST=db`、`DB_PORT=3306`です。DB名・ユーザー・パスワードは`.env`の`DB_DATABASE`、`DB_USERNAME`、`DB_PASSWORD`、管理用パスワードは`DB_ROOT_PASSWORD`で設定します。ひな形のパスワードはローカル評価用です。
+`.env`をLaravelとComposeで共用します。DB接続先はコンテナ間通信用の`DB_HOST=db`、`DB_PORT=3306`です。DB名・ユーザー・パスワードは`.env`の`DB_DATABASE`、`DB_USERNAME`、`DB_PASSWORD`、管理用パスワードは`DB_ROOT_PASSWORD`で設定します。
 DBの環境変数は空のボリュームを初期化するときに使用されます。既存DBのパスワードは`.env`を書き換えるだけでは変更されません。
 
-8080番ポートが使用中の場合は、`.env`の`APP_PORT`と`APP_URL`のポートを同じ番号へ変更し、`docker compose up -d --wait`を実行してください。Webサーバーは`127.0.0.1`だけに公開し、MySQLはホストへ公開しません。
+8080番ポートが使用中の場合は、`.env`の`APP_PORT`と`APP_URL`のポートを同じ番号へ変更し、`docker compose up -d`を実行してください。Webサーバーは`127.0.0.1`だけに公開し、MySQLはホストへ公開しません。
 
 ## 起動・停止・日常の操作
 
 ```bash
 # 起動（2回目以降）
-docker compose up -d --wait
+docker compose up -d
 
 # 状態とログの確認
 docker compose ps
@@ -70,7 +70,7 @@ docker compose start
 docker compose down
 
 # DockerfileやPHP・Apache設定を変更した場合の再ビルド
-docker compose up -d --build --wait
+docker compose up -d --build
 ```
 
 日記のDBは名前付きボリュームに、画像はホスト側の`storage/app/public/`に保存されます。通常の`docker compose down`では両方とも保持されます。`docker compose down -v`はDBボリュームを削除するため、データを残す場合は実行しないでください。
