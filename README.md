@@ -1,4 +1,4 @@
-# HanaPrime 1行日記
+# 1行日記
 
 Laravel 13による1行日記サイトです。日記の一覧・投稿・編集・削除とJPEG画像のアップロードに対応しています。
 
@@ -73,20 +73,6 @@ php artisan test
 テストはSQLiteのメモリDBとテスト用ストレージを使用します。Dockerから渡されるDB環境変数もテスト専用値に上書きします。
 設定キャッシュなどによりSQLiteメモリDB以外を参照する場合は、DB操作の前に停止します。
 機能テストで、CRUD、5件単位のページ分割、入力制限、画像の保持・差し替え・削除、保存失敗時の後片付け、出力エスケープ、デバッグツールバーの有効化条件などを確認しています。
-
-## 開発支援
-
-### デバッグツールバー
-
-Laravel Debugbarを開発用依存として導入しています。`composer install`後、`APP_ENV=local`かつ`APP_DEBUG=true`の場合に画面下部へ表示され、SQL・処理時間・メモリ使用量などを確認できます。
-一時的に非表示にする場合は`.env`に`DEBUGBAR_ENABLED=false`を設定し、`php artisan config:clear`を実行してください。
-本番・テストなど`local`以外の環境では、`DEBUGBAR_ENABLED=true`でも無効です。過去のリクエスト情報はファイルに保存しません。
-本番用の依存インストールは`composer install --no-dev`を使用します。
-
-### AI開発支援
-
-既存のAGENTS.mdの指定に従い、開発依存としてLaravel Boostを導入しています。
-`php artisan boost:install`で生成されるローカルのエージェント設定・スキルはソース管理対象外です。
 
 ## AIツールの利用記録
 
