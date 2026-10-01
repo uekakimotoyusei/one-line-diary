@@ -82,20 +82,6 @@ docker compose exec app chown -R www-data:www-data storage bootstrap/cache
 docker compose exec app chmod -R ug+rwX storage bootstrap/cache
 ```
 
-## 以前の親ディレクトリ構成からの移行
-
-Docker設定はアプリのルートへ移動しました。以前`cd ..`していた操作は、今後このディレクトリで行います。
-Composeのプロジェクト名は`hanaprime`を維持しているため、既存の`hanaprime_mysql-data`ボリュームと同じソース・画像を引き継ぎます。既存環境では`.env`のコピーやキー再生成は不要です。
-
-以前の親ディレクトリの`.env`で変更していた`APP_PORT`、`DB_DATABASE`、`DB_USERNAME`、`DB_PASSWORD`、`DB_ROOT_PASSWORD`がある場合は、同じ値をアプリ側の`.env`へ移してから起動してください。
-
-```bash
-# アプリのルートで実行
-docker compose up -d --build --wait
-```
-
-別の独立した環境を同じマシンに作る場合は、`docker compose -p one-line-diary-other ...`のように別のプロジェクト名を指定し、`APP_PORT`も変更してください。別プロジェクト名ではDBボリュームも別になり、初回セットアップが必要です。
-
 ## テスト
 
 ```bash
