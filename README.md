@@ -20,54 +20,79 @@ Laravel 13による1行日記サイトです。日記の一覧・投稿・編集
 
 ## ソース管理
 
-このディレクトリがGitリポジトリのルートです。親ディレクトリのDocker設定はローカル開発用で、リポジトリには含めません。
-`.env`、`vendor/`、`node_modules/`は管理対象外です。依存パッケージのバージョンは`composer.lock`で固定しています。
+このディレクトリがGitリポジトリのルートです。`docker-compose.yml`、`Dockerfile`、`docker/`もリポジトリに含まれ、親ディレクトリの設定は不要です。
+`.env`、`vendor/`、`node_modules/`は管理対象外です。PHP依存パッケージのバージョンは`composer.lock`で固定しています。
 
 ## 動作環境
 
-確認済み: PHP 8.5.11、MySQL 26.7.0、Composer 2.10.3。
+Docker Desktop（またはDocker EngineとComposeプラグイン）とGitを用意してください。
+コンテナ内の確認済み環境はPHP 8.5.11、MySQL 26.7.0、Composer 2.10.3です。ホストへのPHP・Composer・MySQL・Node.jsのインストールは不要です。
+このDocker構成はローカル開発・評価用です。
 
-## セットアップ
+## Dockerでの初回セットアップ
 
-PHP、Composer、MySQLを用意し、リポジトリのルートで実行します。
-PHPの`pdo_mysql`、`mbstring`、`fileinfo`などLaravelの必要拡張を有効にしてください。テストには`pdo_sqlite`も必要です。
+以下のコマンドは、すべてリポジトリのルートで実行します。
 
 ```bash
-composer install
+git clone https://github.com/uekakimotoyusei/one-line-diary.git
+cd one-line-diary
 cp .env.example .env
-php artisan key:generate
-```
-
-`.env`の`DB_HOST`、`DB_PORT`、`DB_DATABASE`、`DB_USERNAME`、`DB_PASSWORD`を自身の環境に合わせ、データベースを作成してください。ひな形はローカルDocker用です。Docker以外では通常`DB_HOST=127.0.0.1`などに変更します。
-
-```bash
-php artisan migrate
-php artisan storage:link
-php artisan serve --port=8080
-```
-
-http://localhost:8080 にアクセスします。Webサーバーを使用する場合は公開先を`public/`にし、実行ユーザーが`storage/`と`bootstrap/cache/`へ書き込めるようにしてください。
-画像の受け付けにはPHPの`upload_max_filesize`を5M以上、`post_max_size`を8M以上にしてください。
-画面のCSSは`public/css/diary.css`に配置しているため、Node.jsやViteのビルドは不要です。
-
-## ローカルDocker環境での操作
-
-親ディレクトリに用意した`docker-compose.yml`を使います。詳細な起動・停止ガイドは親ディレクトリのREADMEに記載しています。
-
-```bash
-cd ..
-docker compose up -d --wait
+docker compose up -d --build --wait
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
 docker compose exec app php artisan storage:link
-docker compose exec app php artisan test
+```
+
+[http://localhost:8080](http://localhost:8080)へアクセスします。初回のイメージ作成には数分かかる場合があります。
+画面のCSS・JavaScriptは`public/`に配置しているため、Viteのビルドは不要です。
+
+`.env`をLaravelとComposeで共用します。DB接続先はコンテナ間通信用の`DB_HOST=db`、`DB_PORT=3306`です。DB名・ユーザー・パスワードは`.env`の`DB_DATABASE`、`DB_USERNAME`、`DB_PASSWORD`、管理用パスワードは`DB_ROOT_PASSWORD`で設定します。ひな形のパスワードはローカル評価用です。
+DBの環境変数は空のボリュームを初期化するときに使用されます。既存DBのパスワードは`.env`を書き換えるだけでは変更されません。
+
+8080番ポートが使用中の場合は、`.env`の`APP_PORT`と`APP_URL`のポートを同じ番号へ変更し、`docker compose up -d --wait`を実行してください。Webサーバーは`127.0.0.1`だけに公開し、MySQLはホストへ公開しません。
+
+## 起動・停止・日常の操作
+
+```bash
+# 起動（2回目以降）
+docker compose up -d --wait
+
+# 状態とログの確認
+docker compose ps
+docker compose logs --tail=100 app db
+
+# 一時停止・再開
+docker compose stop
+docker compose start
+
+# コンテナとネットワークを削除して停止
 docker compose down
+
+# DockerfileやPHP・Apache設定を変更した場合の再ビルド
+docker compose up -d --build --wait
+```
+
+日記のDBは名前付きボリュームに、画像はホスト側の`storage/app/public/`に保存されます。通常の`docker compose down`では両方とも保持されます。`docker compose down -v`はDBボリュームを削除するため、データを残す場合は実行しないでください。
+
+権限エラーで`storage/`や`bootstrap/cache/`へ書き込めない場合は、コンテナのWeb実行ユーザーへ書き込み権限を付けます。
+
+```bash
+docker compose exec app chown -R www-data:www-data storage bootstrap/cache
+docker compose exec app chmod -R ug+rwX storage bootstrap/cache
 ```
 
 ## テスト
 
 ```bash
-php artisan config:clear
-php artisan test
+docker compose exec app php artisan config:clear
+docker compose exec app php artisan test --testdox
+```
+
+コンテナ内で直接実行する場合は、次のコマンドを使用します。`--testdox`を付けると、各テストの説明を表示します。
+
+```bash
+php artisan test --testdox
 ```
 
 テストはSQLiteのメモリDBとテスト用ストレージを使用します。Dockerから渡されるDB環境変数もテスト専用値に上書きします。

@@ -1,0 +1,5 @@
+# イメージ作成に必要なDocker設定だけを送信し、秘密情報や画像を含めない。
+**
+!Dockerfile
+!docker/
+!docker/**
