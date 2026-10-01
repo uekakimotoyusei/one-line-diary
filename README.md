@@ -100,7 +100,13 @@ docker compose up -d --build --wait
 
 ```bash
 docker compose exec app php artisan config:clear
-docker compose exec app php artisan test
+docker compose exec app php artisan test --testdox
+```
+
+コンテナ内で直接実行する場合は、次のコマンドを使用します。`--testdox`を付けると、各テストの説明を表示します。
+
+```bash
+php artisan test --testdox
 ```
 
 テストはSQLiteのメモリDBとテスト用ストレージを使用します。Dockerから渡されるDB環境変数もテスト専用値に上書きします。
