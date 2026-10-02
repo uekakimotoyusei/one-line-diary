@@ -82,6 +82,34 @@ docker compose exec app chown -R www-data:www-data storage bootstrap/cache
 docker compose exec app chmod -R ug+rwX storage bootstrap/cache
 ```
 
+## データベースのマイグレーション
+
+マイグレーションは、`database/migrations/`の定義を使ってDBのテーブル構造を作成・変更する処理です。初回セットアップ後に新しいマイグレーションを取得した場合も、リポジトリのルートで次のコマンドを実行します。
+
+```bash
+# コンテナを起動
+docker compose up -d
+
+# 未適用のマイグレーションを実行
+docker compose exec app php artisan migrate
+
+# 適用状況を確認
+docker compose exec app php artisan migrate:status
+```
+
+`migrate`は未適用のファイルだけを実行します。適用済みのマイグレーションは再実行されません。初回は日記を保存する`diaries`テーブルなどが作成されます。
+
+コンテナ内で直接実行する場合は、次のコマンドを使用します。
+
+```bash
+php artisan migrate
+php artisan migrate:status
+```
+
+Composeのプロジェクト名を`hanaprime`から`one-line-diary`へ変更した環境では、DBボリュームも別になります。新しいDBにはマイグレーションが必要ですが、以前の日記データは自動では移りません。既存データを引き継ぐ場合は、旧DBから別途データ移行を行ってください。
+
+`php artisan migrate:fresh`は全テーブルを削除して作り直します。データを残したい環境では実行しないでください。また、通常の`migrate`も追加された定義によってはデータを変更・削除するため、適用する内容を確認してください。
+
 ## テスト
 
 ```bash
