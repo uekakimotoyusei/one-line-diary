@@ -1,5 +1,5 @@
 # 配置ディレクトリが変わっても既存のDBボリュームを引き継ぐ。
-name: hanaprime
+name: one-line-diary
 
 services:
   app:
