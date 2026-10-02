@@ -106,8 +106,6 @@ php artisan migrate
 php artisan migrate:status
 ```
 
-Composeのプロジェクト名を`hanaprime`から`one-line-diary`へ変更した環境では、DBボリュームも別になります。新しいDBにはマイグレーションが必要ですが、以前の日記データは自動では移りません。既存データを引き継ぐ場合は、旧DBから別途データ移行を行ってください。
-
 `php artisan migrate:fresh`は全テーブルを削除して作り直します。データを残したい環境では実行しないでください。また、通常の`migrate`も追加された定義によってはデータを変更・削除するため、適用する内容を確認してください。
 
 ## テスト
